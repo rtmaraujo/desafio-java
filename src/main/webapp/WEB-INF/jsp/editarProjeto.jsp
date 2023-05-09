@@ -21,6 +21,7 @@
             </div>
             <sf:form action="${pageContext.request.contextPath}/editar" method="post" modelAttribute="projeto">
                 <input type="hidden" id="id" name="id" value="${projeto.id}"/>
+                <input type="hidden" id="idGerenteAnterior" name="idGerenteAnterior" value="${projeto.idGerenteAnterior}"/>
                 <fieldset>
                     <div class="row mb-3">
                             <div class="col">

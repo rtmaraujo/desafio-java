@@ -1,5 +1,6 @@
 package br.com.desafio.service;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import br.com.desafio.dto.ProjetoDTO;
 import br.com.desafio.enums.ProjetoRisco;
 import br.com.desafio.enums.ProjetoStatus;
+import br.com.desafio.model.Membro;
 import br.com.desafio.model.Pessoa;
 import br.com.desafio.model.Projeto;
 import br.com.desafio.repository.PessoaRepository;
@@ -38,7 +40,7 @@ public class ProjetoService {
 		List<ProjetoDTO> listaDtos = new ArrayList<>();
 		if (!response.isEmpty()) {
 			response.forEach(p->{
-				Optional<Pessoa> optPessoa = pessoaRepository.findById(p.getIdGerente().longValue());
+				Optional<Pessoa> optPessoa = pessoaRepository.findById(p.getPessoa().getId());
 				
 				listaDtos.add(ProjetoDTO.builder()
 						.dataFim(p.getDataFim())
@@ -47,7 +49,10 @@ public class ProjetoService {
 						.dataInicioFormat(Utils.formatarData(p.getDataInicio()))
 						.dataPrevisaoFim(p.getDataPrevisaoFim())
 						.dataPrevisaoFimFormat(Utils.formatarData(p.getDataPrevisaoFim()))
-						.descricao(p.getDescricao()).id(p.getId()).idGerente(p.getIdGerente()).nome(p.getNome())
+						.descricao(p.getDescricao()).id(p.getId())
+						.idGerente(BigInteger.valueOf(p.getPessoa().getId()))
+						.idGerenteAnterior(BigInteger.valueOf(p.getPessoa().getId()))
+						.nome(p.getNome())
 						.nomeGerente(optPessoa.get().getNome()).orcamento(p.getOrcamento()).risco(p.getRisco())
 						.status(p.getStatus())
 						.build());
@@ -57,41 +62,68 @@ public class ProjetoService {
 		return listaDtos;
 	}
 
-	public Optional<Projeto> projetoPorId(Long id) {
+	public Optional<ProjetoDTO> projetoPorId(Long id) {
 		Optional<Projeto> optional = projetoRepository.findById(id);
 		
+		Optional<ProjetoDTO> projetoDTO = Optional.empty();
 		if (optional.isPresent()) {
-			Projeto projeto = optional.get();
-			optional.get().setRisco(ProjetoRisco.getCodigoPorDescricao(projeto.getRisco()));
-			optional.get().setStatus(ProjetoStatus.getCodigoPorDescricao(projeto.getStatus()));
+			Projeto p = optional.get();
+			projetoDTO = Optional.of(ProjetoDTO.builder().dataFim(p.getDataFim()).dataFimFormat(Utils.formatarData(p.getDataFim()))
+					.dataInicio(p.getDataInicio()).dataInicioFormat(Utils.formatarData(p.getDataInicio()))
+					.dataPrevisaoFim(p.getDataPrevisaoFim())
+					.dataPrevisaoFimFormat(Utils.formatarData(p.getDataPrevisaoFim())).descricao(p.getDescricao())
+					.id(p.getId()).idGerente(BigInteger.valueOf(p.getPessoa().getId()))
+					.idGerenteAnterior(BigInteger.valueOf(p.getPessoa().getId())).nome(p.getNome())
+					.orcamento(p.getOrcamento()).risco(ProjetoRisco.getCodigoPorDescricao(p.getRisco()))
+					.status(ProjetoStatus.getCodigoPorDescricao(p.getStatus())).build());
 		}
-		return optional;
+		return projetoDTO;
 	}
 
-	public Projeto salvar(Projeto projeto) {
+	public Projeto salvar(ProjetoDTO projetoDTO) {
 		
-		projeto.setRisco(ProjetoRisco.getDescricaoPorCodigo(Integer.valueOf(projeto.getRisco())));
-		projeto.setStatus(ProjetoStatus.getDescricaoPorCodigo(Integer.valueOf(projeto.getStatus())));
+		
+		Optional<Pessoa> optPessoa = pessoaRepository.findById(projetoDTO.getIdGerente().longValue());
+		
+		Projeto projeto = Projeto.builder().nome(projetoDTO.getNome()).dataInicio(projetoDTO.getDataInicio())
+				.dataFim(projetoDTO.getDataFim()).dataPrevisaoFim(projetoDTO.getDataPrevisaoFim())
+				.descricao(projetoDTO.getDescricao())
+				.status(ProjetoStatus.getDescricaoPorCodigo(Integer.valueOf(projetoDTO.getStatus())))
+				.risco(ProjetoRisco.getDescricaoPorCodigo(Integer.valueOf(projetoDTO.getRisco())))
+				.orcamento(projetoDTO.getOrcamento()).pessoa(optPessoa.get()).build();
 		
 		Projeto resultado = projetoRepository.save(projeto);
 		
-//		if (null!= resultado) {
-//			membroService.salvar(Membro.builder().idPessoa(resultado.getIdGerente().longValue())
-//					.idProjeto(resultado.getId()).build());
-//		}
+		if (null != resultado) {
+			membroService.salvar(Membro.builder()
+					.pessoa(resultado.getPessoa()).projeto(resultado).build());
+		}
 		
 		return resultado;
-		
 	}
 	
-	public void atualizar(Long id, Projeto projeto) {
-		projeto.setId(id);
-		Projeto resultado = projetoRepository.save(projeto);
+	public Projeto atualizar(ProjetoDTO projetoDTO) {
 		
-//		if (null != resultado) {
-//			membroService.salvar(Membro.builder().idPessoa(resultado.getIdGerente().longValue())
-//					.idProjeto(resultado.getId()).build());
-//		}
+		Optional<Pessoa> optPessoa = pessoaRepository.findById(projetoDTO.getIdGerente().longValue());
+		
+		Projeto projeto = Projeto.builder()
+				.id(projetoDTO.getId())
+				.nome(projetoDTO.getNome()).dataInicio(projetoDTO.getDataInicio())
+				.dataFim(projetoDTO.getDataFim()).dataPrevisaoFim(projetoDTO.getDataPrevisaoFim())
+				.descricao(projetoDTO.getDescricao())
+				.status(ProjetoStatus.getDescricaoPorCodigo(Integer.valueOf(projetoDTO.getStatus())))
+				.risco(ProjetoRisco.getDescricaoPorCodigo(Integer.valueOf(projetoDTO.getRisco())))
+				.orcamento(projetoDTO.getOrcamento()).pessoa(optPessoa.get()).build();
+		
+		Projeto resultado = projetoRepository.saveAndFlush(projeto);
+		
+		if (null != resultado) {
+			Optional<Membro> membro = membroService.membroPorIdPessoaAndIdProjeto(
+					projetoDTO.getIdGerenteAnterior().longValue(), projetoDTO.getId());
+			membroService.salvar(membro.get());
+		}
+		return resultado;
+				
 	}
 	
 	public void deletar(Long id) {
@@ -99,8 +131,13 @@ public class ProjetoService {
 		Optional<Projeto> response = findByIdAndStatusNotIn(id);
 		
 		if (response.isPresent()) {
-			projetoRepository.delete(response.get());
-//			membroService.deletar(response.get().getId());
+			Optional<Membro> membro = membroService.membroPorIdPessoaAndIdProjeto(response.get().getPessoa().getId(), 
+					response.get().getId());
+			
+			if(membro.isPresent()) {
+				membroService.deletar(membro.get().getId());
+			}
+			projetoRepository.deleteById(response.get().getId());
 		}
 	}
 	

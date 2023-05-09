@@ -6,6 +6,8 @@ import java.time.LocalDate;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,10 +23,13 @@ public class ProjetoDTO {
 
 	@NotBlank
 	private String nome;
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private LocalDate dataInicio;
 	private String dataInicioFormat;
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private LocalDate dataPrevisaoFim;
 	private String dataPrevisaoFimFormat;
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private LocalDate dataFim;
 	private String dataFimFormat;
 	private String descricao;
@@ -33,6 +38,7 @@ public class ProjetoDTO {
 	private String risco;
 	@NotNull
 	private BigInteger idGerente;
+	private BigInteger idGerenteAnterior;
 	private String nomeGerente;
 
 }

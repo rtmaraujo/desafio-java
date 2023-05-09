@@ -1,16 +1,17 @@
 package br.com.desafio.model;
 
-import java.math.BigInteger;
 import java.time.LocalDate;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -58,8 +59,8 @@ public class Projeto {
 	@Column(name = "risco", length = 45)
 	private String risco;
 
-	@NotNull
-	@Column(name = "idgerente", nullable = false)
-	private BigInteger idGerente;
-
+	@OneToOne
+	@JoinColumn(name = "idgerente", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_gerente"))
+	private Pessoa pessoa;
+	
 }

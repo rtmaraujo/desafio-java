@@ -23,67 +23,50 @@ public class MembroServiceTest {
 
 	@Mock
 	private MembroRepository membroRepository;
-	
+
 	@Test
 	public void membroPorIdOk() {
 		Optional<Membro> membro = Optional.of(getMembro());
-		
-		when(this.membroRepository.findById(1L)).thenReturn(membro);
-		
-		Optional<Membro> response = membroService.membroPorId(1L);
 
-		assertEquals(response.get().getIdPessoa(), membro.get().getIdPessoa());
+		when(this.membroRepository.findByIdPessoaAndIdProjeto(1L, 2L)).thenReturn(membro);
+
+		Optional<Membro> response = membroService.membroPorIdPessoaAndIdProjeto(1L, 2L);
+
+		assertEquals(membro.get().getId(), response.get().getId());
 	}
 
 	@Test
 	public void membroPorIdNaoEncontrado() {
 		Optional<Membro> membro = Optional.empty();
-		
-		when(this.membroRepository.findById(1L)).thenReturn(membro);
-		
-		Optional<Membro> response = membroService.membroPorId(1L);
 
-		assertEquals(response.isEmpty(), membro.isEmpty());
+		when(this.membroRepository.findByIdPessoaAndIdProjeto(1L, 2L)).thenReturn(membro);
+
+		Optional<Membro> response = membroService.membroPorIdPessoaAndIdProjeto(1L, 2L);
+
+		assertEquals(membro.isEmpty(), response.isEmpty());
 	}
 
 	@Test
 	public void salvarMembroOK() {
 		Membro membro = getMembro();
 
-		when(this.membroRepository.save(membro)).thenReturn(membro);
+		when(this.membroRepository.saveAndFlush(membro)).thenReturn(membro);
 
 		Membro response = membroService.salvar(membro);
 
-		Mockito.verify(membroRepository).save(membro);
+		Mockito.verify(membroRepository).saveAndFlush(membro);
 
-		assertEquals(response.getIdProjeto(), membro.getIdProjeto());
+		assertEquals(membro.getId(), response.getId());
 
 	}
 
-	@Test
-	public void atualizarMembroOK() {
-
-		Membro membro = getMembro();
-
-		when(this.membroRepository.save(membro)).thenReturn(membro);
-
-		membroService.atualizar(membro);
-
-		Mockito.verify(membroRepository).save(membro);
-	}
-	
 	@Test
 	public void deletarMembroOK() {
-		Optional<Membro> membro = Optional.of(getMembro());
-		when(this.membroRepository.findById(1L)).thenReturn(membro);
-		
 		membroService.deletar(1L);
-		Mockito.verify(membroRepository).delete(getMembro());
+		Mockito.verify(membroRepository).deleteById(1L);
 	}
 
-
 	private Membro getMembro() {
-		return Membro.builder().idPessoa(1L).idProjeto(2L)
-				.build();
+		return Membro.builder().id(1L).build();
 	}
 }

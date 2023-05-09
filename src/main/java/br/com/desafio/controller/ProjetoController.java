@@ -42,9 +42,9 @@ public class ProjetoController {
 	}
 
 	@PostMapping("/salvar")
-	public ModelAndView salvarForm(@Valid @ModelAttribute("projeto") Projeto projeto) {
+	public ModelAndView salvarForm(@Valid @ModelAttribute("projeto") ProjetoDTO projetoDTO) {
 
-		Projeto response = projetoService.salvar(projeto);
+		Projeto response = projetoService.salvar(projetoDTO);
 		
         if (response == null) {
         	ModelAndView model = new ModelAndView("redirect:/cadastrarProjeto");
@@ -58,7 +58,7 @@ public class ProjetoController {
 	public ModelAndView editarProjeto(@RequestParam(value = "id", required = true) Long id) {
 		ModelAndView model = new ModelAndView("editarProjeto");
 		
-		Optional<Projeto> response = projetoService.projetoPorId(id);
+		Optional<ProjetoDTO> response = projetoService.projetoPorId(id);
 		
 		model.addObject("projeto", response.get());
 
@@ -70,9 +70,9 @@ public class ProjetoController {
 	}
 	
 	@PostMapping("/editar")
-	public ModelAndView editarForm(@Valid @ModelAttribute("projeto") Projeto projeto) {
+	public ModelAndView editarForm(@Valid @ModelAttribute("projeto") ProjetoDTO projetoDTO) {
 
-		Projeto response = projetoService.salvar(projeto);
+		Projeto response = projetoService.atualizar(projetoDTO);
 		
         if (response == null) {
         	ModelAndView model = new ModelAndView("redirect:/cadastrarProjeto");
@@ -100,11 +100,11 @@ public class ProjetoController {
 		return model;
 	}
 
-	public List<ProjetoRisco> carregarRiscosProjeto() {
+	private List<ProjetoRisco> carregarRiscosProjeto() {
 		return Arrays.asList(ProjetoRisco.values());
 	}
 
-	public List<ProjetoStatus> carregarStatusProjeto() {
+	private List<ProjetoStatus> carregarStatusProjeto() {
 		return Arrays.asList(ProjetoStatus.values());
 	}
 

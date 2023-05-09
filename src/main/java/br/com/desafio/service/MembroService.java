@@ -15,26 +15,17 @@ public class MembroService {
 
 	@Autowired
 	private MembroRepository membroRepository;
-
-
-	public Optional<Membro> membroPorId(Long id) {
-		return membroRepository.findById(id);
+	
+	public Optional<Membro> membroPorIdPessoaAndIdProjeto(Long idPessoa, Long idProjeto) {
+		return membroRepository.findByIdPessoaAndIdProjeto(idPessoa, idProjeto);
 	}
 
 	public Membro salvar(Membro membro) {
-		return membroRepository.save(membro);
+		return membroRepository.saveAndFlush(membro);
 	}
-	
-	public void atualizar(Membro membro) {
-		membroRepository.save(membro);
-	}
-	
+
 	public void deletar(Long id) {
-		Optional<Membro> response = membroPorId(id);
-		
-		if (response.isPresent()) {
-			membroRepository.delete(response.get());
-		}
+		membroRepository.deleteById(id);
 	}
 
 }

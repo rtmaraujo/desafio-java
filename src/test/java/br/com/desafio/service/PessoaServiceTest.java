@@ -34,7 +34,7 @@ public class PessoaServiceTest {
 
 		List<Pessoa> response = pessoaService.listarPessoas();
 
-		assertEquals(response.get(0).getNome(), pessoas.get(0).getNome());
+		assertEquals(pessoas.get(0).getNome(), response.get(0).getNome());
 	}
 
 	@Test
@@ -45,7 +45,7 @@ public class PessoaServiceTest {
 
 		List<Pessoa> response = pessoaService.listarPessoas();
 
-		assertEquals(response.size(), pessoas.size());
+		assertEquals(pessoas.size(), response.size());
 	}
 
 	@Test
@@ -56,7 +56,7 @@ public class PessoaServiceTest {
 
 		Optional<Pessoa> response = pessoaService.pessoaPorId(1L);
 
-		assertEquals(response.get().getNome(), pessoa.get().getNome());
+		assertEquals(pessoa.get().getNome(), response.get().getNome());
 	}
 
 	@Test
@@ -67,20 +67,20 @@ public class PessoaServiceTest {
 
 		Optional<Pessoa> response = pessoaService.pessoaPorId(1L);
 
-		assertEquals(response.isEmpty(), pessoa.isEmpty());
+		assertEquals(pessoa.isEmpty(), response.isEmpty());
 	}
 
 	@Test
 	public void salvarPessoaOK() {
 		Pessoa pessoa = getPessoa();
 
-		when(this.pessoaRepository.save(pessoa)).thenReturn(pessoa);
+		when(this.pessoaRepository.saveAndFlush(pessoa)).thenReturn(pessoa);
 
 		Pessoa response = pessoaService.salvar(getPessoa());
 
-		Mockito.verify(pessoaRepository).save(pessoa);
+		Mockito.verify(pessoaRepository).saveAndFlush(pessoa);
 
-		assertEquals(response.getNome(), pessoa.getNome());
+		assertEquals(pessoa.getNome(), response.getNome());
 
 	}
 
@@ -89,11 +89,11 @@ public class PessoaServiceTest {
 
 		Pessoa pessoa = getPessoa();
 
-		when(this.pessoaRepository.save(pessoa)).thenReturn(pessoa);
+		when(this.pessoaRepository.saveAndFlush(pessoa)).thenReturn(pessoa);
 
 		pessoaService.atualizar(1L, pessoa);
 
-		Mockito.verify(pessoaRepository).save(pessoa);
+		Mockito.verify(pessoaRepository).saveAndFlush(pessoa);
 	}
 
 	private List<Pessoa> getPessoas() {

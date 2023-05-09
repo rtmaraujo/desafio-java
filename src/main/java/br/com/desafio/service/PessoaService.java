@@ -26,12 +26,12 @@ public class PessoaService {
 	}
 
 	public Pessoa salvar(Pessoa pessoa) {
-		return pessoaRepository.save(pessoa);
+		return pessoaRepository.saveAndFlush(pessoa);
 	}
 	
 	public void atualizar(Long id, Pessoa pessoa) {
 		pessoa.setId(id);
-		pessoaRepository.save(pessoa);
+		pessoaRepository.saveAndFlush(pessoa);
 	}
 
 }

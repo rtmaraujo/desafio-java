@@ -36,5 +36,5 @@ public class Pessoa {
 
 	@Column(name = "funcionario")
 	private boolean funcionario;
-
+	
 }
